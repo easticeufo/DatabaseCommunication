@@ -1,0 +1,9 @@
+.DS_Store
+.svn/
+.settings/
+.classpath
+.project
+target/
+
+src/main/resources/application-release.properties
+
