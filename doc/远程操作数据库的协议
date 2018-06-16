@@ -4,12 +4,12 @@
 Head+Body，Head为固定长度结构体：
 struct Head
 {
-	UINT32 type; // 请求类型：1-插入 2-更新 3-删除
+	UINT32 type; // 请求类型：1-SQL语句
 	UINT32 length; // body数据长度
 	UINT8 authToken[32]; // 认证信息，body内容＋password的md5加密值
 }
 
-Body为可变长度，长度由Head.length确定，Body内容格式由Head.type确定，type=1或2或3时，body都为要执行的sql语句
+Body为可变长度，长度由Head.length确定，Body内容格式由Head.type确定，type=1时，body为要执行的sql语句
 
 服务器返回数据格式：
 struct Result
