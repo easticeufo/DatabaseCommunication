@@ -17,3 +17,7 @@ struct Result
 	INT32 code; // 返回码：负数表示失败，正数表示成功
 	char info[256]; // 附加内容，长度固定为256字节
 }
+
+type=1：	code=0：成功，info的前0～3字节表示affectedRow，4～7表示autoKey
+		code<0：失败，info表示失败原因字符串
+

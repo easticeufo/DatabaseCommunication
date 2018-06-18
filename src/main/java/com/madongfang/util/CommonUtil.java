@@ -46,6 +46,35 @@ public class CommonUtil {
 		}
 	}
 	
+	/**
+	 * 将字符串进行MD5加密
+	 * 
+	 * @param bytes
+	 * @return 32位小写形式的字符串
+	 */
+	public String md5(byte[] bytes) {
+		try {
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			md.update(bytes);
+			return toHex(md.digest()).toLowerCase();
+		} catch (NoSuchAlgorithmException e) {
+			logger.error("catch Exception:", e);
+			return null;
+		}
+	}
+	
+	public int byteArrayToInt(byte[] b) {
+		return (b[3] & 0xFF) | ((b[2] & 0xFF) << 8) | ((b[1] & 0xFF) << 16) | ((b[0] & 0xFF) << 24);
+	}
+	
+	public int byteArrayToInt(byte[] b, int off) {
+		return (b[3+off] & 0xFF) | ((b[2+off] & 0xFF) << 8) | ((b[1+off] & 0xFF) << 16) | ((b[0+off] & 0xFF) << 24);
+	}
+	
+	public byte[] intToByteArray(int a) {
+		return new byte[] {(byte)((a >> 24) & 0xFF), (byte)((a >> 16) & 0xFF), (byte)((a >> 8) & 0xFF), (byte)(a & 0xFF)};
+	}
+	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	/**
