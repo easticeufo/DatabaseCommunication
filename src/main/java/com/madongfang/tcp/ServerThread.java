@@ -40,35 +40,42 @@ public class ServerThread extends Thread {
 			
 			while (true)
 			{
+				Arrays.fill(info, (byte)0);
 				RequestData requestData = getPackage(in);
 				if (requestData == null)
 				{
+					String errorString = "Authentication failure";
+					System.arraycopy(errorString.getBytes(), 0, info, 0, errorString.getBytes().length);
+					out.write(commonUtil.intToByteArray(-1));
+					out.write(info);
 					continue;
 				}
 				
-				Arrays.fill(info, (byte)0);
 				switch (requestData.getType()) {
 				case TYPE_SQL:
 					try {
 						DatabaseUtil.ExecResult sqlResult = databaseUtil.execSql(new String(requestData.getBody(), "UTF-8"));
-						out.write(commonUtil.intToByteArray(0));
 						System.arraycopy(commonUtil.intToByteArray(sqlResult.getAffectedRow()), 0, info, 0, 4);
 						System.arraycopy(commonUtil.intToByteArray(sqlResult.getAutoKey()), 0, info, 4, 4);
+						out.write(commonUtil.intToByteArray(0));
 					} catch (SQLException e) {
 						logger.warn("SQLException:{}", e.getMessage());
 						byte[] messageByteArray = e.getMessage().getBytes();
 						int copylen = messageByteArray.length < info.length ? messageByteArray.length : (info.length - 1);
 						System.arraycopy(messageByteArray, 0, info, 0, copylen);
-						out.write(commonUtil.intToByteArray(-1));
+						out.write(commonUtil.intToByteArray(-3));
 					}
-					out.write(info);
 					
 					break;
 
 				default:
-					logger.warn("unknown request type: type={}", requestData.getType());
+					String errorString = String.format("unknown request type: type=%d", requestData.getType());
+					logger.warn(errorString);
+					System.arraycopy(errorString.getBytes(), 0, info, 0, errorString.getBytes().length);
+					out.write(commonUtil.intToByteArray(-2));
 					break;
 				}
+				out.write(info);
 			}
 		} 
 		catch (IOException e) 
@@ -158,7 +165,7 @@ public class ServerThread extends Thread {
 		logger.debug("authArray string={}", new String(authArray));
 		if (!authToken.equals(commonUtil.md5(authArray)))
 		{
-			logger.warn("Authentication failure: authToken={}, authArray md5={}", commonUtil.md5(authArray));
+			logger.warn("Authentication failure: authToken={}, authArray md5={}", authToken, commonUtil.md5(authArray));
 			return null;
 		}
 		
